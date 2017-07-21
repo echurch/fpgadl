@@ -1,0 +1,20 @@
+EC in xocc: -o bin_mmult_hw.xclbin --platform /home/echurch/pico/micron_ac510_sdaccel_release.20170221/micron_ac510_sdaccel_16_0/micron_ac510_sdaccel_16_0.xpfm -s net.cl
+EC: RDI_PROG is xocc
+
+****** xocc v2016.3_sdx
+  **** SW Build 1721985 on Tue Nov 29 18:41:34 MST 2016
+    ** Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
+
+INFO: [XOCC 60-585] Compiling for hardware target
+INFO: [XOCC 60-423]   Target device: micron:ac510:sdaccel:16.0
+INFO: [XOCC 60-242] Creating kernel: 'dataLayer'
+INFO: [XOCC 60-242] Creating kernel: 'outputLayer'
+INFO: [XOCC 60-242] Creating kernel: 'paddingLayer'
+INFO: [XOCC 60-242] Creating kernel: 'convLayer'
+INFO: [XOCC 60-242] Creating kernel: 'poolingLayer'
+INFO: [XOCC 60-242] Creating kernel: 'reluLayer'
+EC: RDI_PROG is vrs
+INFO: [XOCC 60-251]   Hardware accelerator integration...
+.......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+INFO: [XOCC 60-594] Finished kernel compilation
+INFO: [XOCC 60-586] Created bin_mmult_hw.xclbin

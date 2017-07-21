@@ -1,0 +1,10 @@
+*.o
+*.exe
+*.xclbin
+
+*~
+*.jou
+*.log
+*.html
+*.str
+*.dir
