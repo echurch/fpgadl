@@ -160,6 +160,12 @@ bool Layer::forward(oclHardware hardware, oclSoftware software,
   size_t argCounter = 0;
   CL_KERNEL_ARG(kernel, sizeof(cl_mem), &inputBufferCL);
   CL_KERNEL_ARG(kernel, sizeof(cl_mem), &outputBufferCL);
+
+  if (type == Pooling) {
+    INFO_LOG << " Pooling layer: inputSize/outputSize/stride is " << inputSize <<"/" << outputSize << "/" << param.stride << endl;
+  }
+
+
   if (type == Convolution) {
     weightCL = CL_CREATE_BUFFER(hardware.mContext, CL_MEM_READ_ONLY,
                                 learnedParam.weight_data_num * sizeof(dType),
@@ -189,19 +195,20 @@ bool Layer::forward(oclHardware hardware, oclSoftware software,
   KERNEL_ENQUEUE(hardware.mQueue, kernel, 3, offset, globalSize, localSize, 0,
                  NULL, NULL);
   if (log == LAYER || log == DEBUG) {
-    INFO_LOG << " Kernel done. outputSize is " << outputSize <<  endl;
+    INFO_LOG << " Kernel_enqueue'ing done.  " << endl;
   }
   // Output Feature Map
   if (outputSize > 1) {
 
-    if (log == LAYER || log == DEBUG) {
-      INFO_LOG << " Going to CL_FINISH " << outputSize <<  endl;
-    }
+    if (type != Pooling) 
+      {
+	CL_FINISH(hardware.mQueue);
+    
+	if (log == LAYER || log == DEBUG) {
+	  INFO_LOG  << "CL_FINISH done with first hardware.mQueue" << endl;
+	}
+      }
 
-    CL_FINISH(hardware.mQueue);
-    if (log == LAYER || log == DEBUG) {
-      INFO_LOG  << "CL_FINISH done with first hardware.mQueue" << endl;
-    }
     CL_ENQUEUE_READ_BUFFER(hardware.mQueue, outputBufferCL, CL_TRUE, 0,
                            outputSize * sizeof(dType), outputBuffer, 0, NULL,
 			   NULL);
@@ -210,10 +217,14 @@ bool Layer::forward(oclHardware hardware, oclSoftware software,
       INFO_LOG  << "CL_ENQUE_READ_BUFFER finished" << endl;
     }
 
-    CL_FINISH(hardware.mQueue);
-    if (log == LAYER || log == DEBUG) {
-      INFO_LOG  << "CL_FINISH done with second hardware.mQueue" << endl;
-    }
+    if (type != Pooling) 
+      {
+	CL_FINISH(hardware.mQueue);
+	if (log == LAYER || log == DEBUG) {
+	  INFO_LOG  << "CL_FINISH done with second hardware.mQueue" << endl;
+	}
+      }
+
     if (log == DEBUG) {
       cout << "Input: " << endl;
       print2D(inputBuffer, param.inputHeight, param.inputWidth);
@@ -222,7 +233,10 @@ bool Layer::forward(oclHardware hardware, oclSoftware software,
       print2D(outputBuffer, param.outputHeight, param.outputWidth);
       SOLID_LINE;
     }
+
+    std::cout << "going to freeCLMemory" << std::endl;
     freeCLMemory();
+    std::cout << "back from freeCLMemory" << std::endl;
   }
 
   // Ping Pong

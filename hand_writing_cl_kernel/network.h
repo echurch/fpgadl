@@ -34,8 +34,14 @@
   std::cout << "Out of clFinish, err/CL_SUCCESS are: " << err <<"/"<< CL_SUCCESS  << ".\n"; \
   FORWARD_ERROR_CHECK;
 
+#define CL_FLUSH(...)                                                         \
+  err = clFlush(__VA_ARGS__);                                                 \
+  std::cout << "Out of clFlush, err/CL_SUCCESS are: " << err <<"/"<< CL_SUCCESS  << ".\n"; \
+  FORWARD_ERROR_CHECK;
+
 #define KERNEL_ENQUEUE(...)                                                    \
   err = clEnqueueNDRangeKernel(__VA_ARGS__);                                   \
+  std::cout << "Out of clEnqueueNDRangeKernel, err/CL_SUCCESS are: " << err <<"/"<< CL_SUCCESS  << ".\n"; \
   FORWARD_ERROR_CHECK;
 
 #define SET_3D(array, x, y, z)                                                 \

@@ -12,7 +12,9 @@
 #ifdef __xilinx__
 // #define BUFFER_SIZE 15680
 #endif
-#define DEBUG
+
+// comment DEBUG back out after studies. EC, 21-July-2017
+//#define DEBUG
 typedef float dType;
 typedef int BOOL;
 //////////////////////////////////////////////////////////////////////
@@ -447,17 +449,25 @@ __kernel void poolingLayer(__global dType *inputFeatureMap,
                            __global dType *outputFeatureMap,
                            __global NetParam *param, __global BOOL *phase) {
   DEBUG_PRINT_INFO("poolingLayer");
-  __private dType maxValue, _temp;
+  __private dType maxValue, _temp, maxAllow;
   EASY_WORK_ITEM_3D_OUTPUT_BEGIN(channelCounter, heightCounter, widthCounter);
-  maxValue = ELM(readFmBuffer, channelCounter, param->inputHeight,
-                 heightCounter * param->stride, param->inputWidth,
-                 widthCounter * param->stride);
+//  maxValue = ELM(readFmBuffer, channelCounter, param->inputHeight,
+//                 heightCounter * param->stride, param->inputWidth,
+//                 widthCounter * param->stride);
+  maxValue = 0;
+  maxAllow = 1073741823; // 2^30-1
+//  int idx = get_global_id(0); // makes compilation take hours, then fail. EC, 26-July-2017
+//  printf("poolingLayer || job %d:\n", idx);
   for (int i = 0; i < param->kernelSize; i++)
     for (int j = 0; j < param->kernelSize; j++) {
+//      printf("poolingLayer kernel: i, j are %d, %d\n",i,j);
       _temp = ELM(readFmBuffer, channelCounter, param->inputHeight,
                   heightCounter * param->stride + i, param->inputWidth,
                   widthCounter * param->stride + j);
+      if (_temp >= maxAllow) _temp = 0 ; // try to stop apparent 30th bit being set.
+//      printf("poolingLayer kernel: _temp%d, maxValue%d are \n",_temp,maxValue);
       maxValue = maxValue > _temp ? maxValue : _temp;
+      printf("maxValue calculated to be %d \n",maxValue);
     }
   OUTPUT_ELM = maxValue;
   EASY_WORK_ITEM_3D_OUTPUT_END(channelCounter, heightCounter, widthCounter);
